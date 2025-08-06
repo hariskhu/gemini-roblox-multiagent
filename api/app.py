@@ -62,7 +62,7 @@ def create_session():
 # Create a new session
 @app.route('/create_session', methods=['POST'])
 @require_api_key
-def create_session():
+def create_test_session():
     data = request.json
     if not data or "guid" not in data:
         return jsonify({"error": "Missing 'guid' in request"}), 400
