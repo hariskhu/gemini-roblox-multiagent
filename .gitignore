@@ -1,6 +1,4 @@
-# Project place file
-/roblox-ai-agent.rbxlx
-
-# Roblox Studio lock files
-/*.rbxlx.lock
-/*.rbxl.lock
+venv/
+__pycache__/
+*.pyc
+.env
