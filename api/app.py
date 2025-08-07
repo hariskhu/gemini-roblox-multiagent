@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv(".env")
 
-API_KEY = os.getenv("RBLX_GEMINI_API_KEY")
+API_KEY = os.getenv("LOG_DB_API_KEY")
 DATABASE_URI = os.getenv("MONGO_URI")
 
 app = Flask(__name__)
