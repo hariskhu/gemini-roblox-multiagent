@@ -22,7 +22,7 @@ session_ids = db["session_ids"]
 def require_api_key(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        key = request.headers.get("RBLX-GEMINI-API-KEY")
+        key = request.headers.get("LOG-DB-API-KEY")
         if key and key == API_KEY:
             return f(*args, **kwargs)
         else:
@@ -38,9 +38,10 @@ def get_next_session_id():
     )
     return counter["next_id"]
 
-@app.route('/')
+# Wake API host and check if running
+@app.route('/', methods=['GET'])
 def home():
-    return "Database API is running!"
+    return jsonify({"message": "Database API is running!"}), 200
 
 # Create a testing session
 @app.route('/create_test_session', methods=['POST'])
