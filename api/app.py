@@ -46,6 +46,7 @@ def home():
 # Examine request headers
 @app.route('/debug_headers', methods=['POST', 'GET'])
 def debug_headers():
+    print(dict(request.headers)) # REMOVE AFTER LIVE TEST
     return jsonify(dict(request.headers)), 200
 
 # Create a testing session
