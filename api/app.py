@@ -22,7 +22,6 @@ session_ids = db["session_ids"]
 def require_api_key(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        print(request.headers)
         key = request.headers.get("x-log-db-api-key")
         if key and key == API_KEY:
             return f(*args, **kwargs)
@@ -43,6 +42,11 @@ def get_next_session_id():
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({"message": "Database API is running!"}), 200
+
+# Examine request headers
+@app.route('/debug_headers', methods=['POST', 'GET'])
+def debug_headers():
+    return jsonify(dict(request.headers)), 200
 
 # Create a testing session
 @app.route('/create_test_session', methods=['POST'])
