@@ -23,7 +23,7 @@ def require_api_key(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         key = request.headers.get(["X-Log-Db-Api-Key"])
-        if key[] and key == API_KEY:
+        if key and key[0] == API_KEY:
             return f(*args, **kwargs)
         else:
             abort(401, description="Unauthorized: Invalid API key")
