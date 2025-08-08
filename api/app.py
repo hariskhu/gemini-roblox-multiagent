@@ -2,8 +2,9 @@ from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
 from functools import wraps
-import os
 from dotenv import load_dotenv
+import os
+import sys
 
 load_dotenv(".env")
 
@@ -22,10 +23,19 @@ session_ids = db["session_ids"]
 def require_api_key(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        print("=== API Key Debug ===", file=sys.stderr, flush=True)
+        print(f"All headers: {dict(request.headers)}", file=sys.stderr, flush=True)
+        
         key = request.headers.get("X-Log-Db-Api-Key")
+        print(f"Received key: '{key}'", file=sys.stderr, flush=True)
+        print(f"Expected key: '{API_KEY}'", file=sys.stderr, flush=True)
+        print(f"Keys match: {key == API_KEY}", file=sys.stderr, flush=True)
+        
         if key and key == API_KEY:
+            print("API key validated successfully", file=sys.stderr, flush=True)
             return f(*args, **kwargs)
         else:
+            print("API key validation failed", file=sys.stderr, flush=True)
             abort(401, description="Unauthorized: Invalid API key")
     return decorated
 
