@@ -22,7 +22,7 @@ session_ids = db["session_ids"]
 def require_api_key(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        key = request.headers.get("x-log-db-api-key")
+        key = request.headers.get("X-Log-Db-Api-Key")
         if key and key == API_KEY:
             return f(*args, **kwargs)
         else:
