@@ -102,7 +102,7 @@ def add_action(session_id):
         return jsonify({"error": "Missing action data"}), 400
 
     collection = db[f"session_{session_id}"]
-    collection.insert_one(action_data)
+    collection.insert_one(dict(action_data))
 
     return jsonify({"message": f"Action added to session {session_id}"}), 201
 
