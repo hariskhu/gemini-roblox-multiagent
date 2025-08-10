@@ -10,6 +10,8 @@ load_dotenv(".env")
 
 API_KEY = os.getenv("LOG_DB_API_KEY")
 DATABASE_URI = os.getenv("MONGO_URI")
+DEBUG_KEY = (os.getenv("DEBUG_KEY") == 'true')
+DEBUG_LOGGING = (os.getenv("DEBUG_LOGGING") == 'true')
 
 app = Flask(__name__)
 CORS(app)
@@ -23,16 +25,18 @@ session_ids = db["session_ids"]
 def require_api_key(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        print("=== API Key Debug ===", file=sys.stderr, flush=True)
-        print(f"All headers: {dict(request.headers)}", file=sys.stderr, flush=True)
-        
         key = request.headers.get("X-Log-Db-Api-Key")
-        print(f"Received key: '{key}'", file=sys.stderr, flush=True)
-        print(f"Expected key: '{API_KEY}'", file=sys.stderr, flush=True)
-        print(f"Keys match: {key == API_KEY}", file=sys.stderr, flush=True)
+
+        if DEBUG_KEY:
+            print("=== API Key Debug ===", file=sys.stderr, flush=True)
+            print(f"All headers: {dict(request.headers)}", file=sys.stderr, flush=True)
+            print(f"Received key: '{key}'", file=sys.stderr, flush=True)
+            print(f"Expected key: '{API_KEY}'", file=sys.stderr, flush=True)
+            print(f"Keys match: {key == API_KEY}", file=sys.stderr, flush=True)
         
         if key and key == API_KEY:
-            print("API key validated successfully", file=sys.stderr, flush=True)
+            if DEBUG_KEY:
+                print("API key validated successfully", file=sys.stderr, flush=True)
             return f(*args, **kwargs)
         else:
             print("API key validation failed", file=sys.stderr, flush=True)
@@ -93,10 +97,10 @@ def create_test_session():
 
     return jsonify({"session_id": new_id, "guid": guid}), 201
 
-# Add a new log to a session
-@app.route('/add_log/<session_id>', methods=['POST'])
+# Add a new event to a session
+@app.route('/add_event/<session_id>', methods=['POST'])
 @require_api_key
-def add_action(session_id):
+def add_event(session_id):
     action_data = request.json
     if not action_data:
         return jsonify({"error": "Missing action data"}), 400
@@ -104,6 +108,29 @@ def add_action(session_id):
     collection = db[f"session_{session_id}"]
     collection.insert_one(dict(action_data))
 
+    return jsonify({"message": f"Action added to session {session_id}"}), 201
+
+# Add full log of events
+@app.route('/add_log/<session_id>', methods=['POST'])
+@require_api_key
+def add_log(session_id):
+    action_log = request.json
+    if not action_log:
+        if DEBUG_LOGGING:
+            print(f"Missing log data at session {session_id}", file=sys.stderr, flush=True)
+        return jsonify({"error": "Missing action log"}), 400
+    
+    for data in action_log:
+        if not data:
+            if DEBUG_LOGGING:
+                print(f"Missing action data at session {session_id}", file=sys.stderr, flush=True)
+            continue
+        else:
+            collection = db[f"session_{session_id}"]
+            collection.insert_one(dict(data))
+            if DEBUG_LOGGING:
+                print(f"Added action data to session {session_id}", file=sys.err, flush=True)
+    print(f"Completed adding log to session {session_id}", file=sys.err, flush=True)
     return jsonify({"message": f"Action added to session {session_id}"}), 201
 
 # Get all session IDs
