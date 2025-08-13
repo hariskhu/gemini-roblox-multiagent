@@ -5,9 +5,7 @@ An AI multiagent that uses Google Gemini to interact with players through the ch
 ## Table of Contents
 
 - [Features](#features)
-- [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
 
